@@ -1,7 +1,7 @@
 {
   "name": "tidyclaudemd",
   "description": "Self-improving Claude Code skills that keep every repo's CLAUDE.md slim without losing information",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "author": {
     "name": "Luca Gattoni"
   },

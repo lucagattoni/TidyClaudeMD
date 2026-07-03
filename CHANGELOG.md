@@ -4,6 +4,11 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.9.1] — 2026-07-03
+
+### Fixed
+- `.claude-plugin/marketplace.json` had an invalid schema, caught when the user actually ran `/plugin marketplace add lucagattoni/TidyClaudeMD` for real and it failed validation: missing the required top-level `name` (string) and `owner` (object) fields, and using an invented `source: {type, url, path}` object plus a `latest` field, neither of which exist in the real schema. Fixed against `claude-plugins-official`'s own working marketplace.json (installed locally at `~/.claude/plugins/marketplaces/claude-plugins-official/`): a same-repo plugin's `source` is just the relative-path string `"."`. Corrected the manifest itself, `claudemd-tidy-reflect` Step 5 sub-step 7 (no `marketplace.json` field to update on version bumps — only `plugin.json`'s `version` matters), and every doc reference to the now-removed `latest` field (user report, 2026-07-03).
+
 ## [0.9.0] — 2026-07-03
 
 ### Added

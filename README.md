@@ -1,6 +1,6 @@
 # TidyClaudeMD
 
-**Version 0.9.0** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
+**Version 0.9.1** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
 
 Distributed as a single Claude Code plugin, `tidyclaudemd`, bundling both skills. This repo is the plugin **and** its own marketplace — no separate repo to publish to.
 
@@ -116,7 +116,7 @@ This is guidance, not a shipped part of either skill — install it only if you 
 
 ## Versioning
 
-One semver for the whole suite, kept identical in both skills' frontmatter, this README's header, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`'s `latest` field, with history in [CHANGELOG.md](CHANGELOG.md):
+One semver for the whole suite, kept identical in both skills' frontmatter, this README's header, and `.claude-plugin/plugin.json`, with history in [CHANGELOG.md](CHANGELOG.md):
 
 | Bump | When |
 |---|---|

@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy-reflect
 description: Self-improvement loop for TidyClaudeMD. Learns from recorded tidy runs and concrete CLAUDE.md instances, then applies evidence-backed improvements to the tidy skill itself — bumping the version and CHANGELOG. Use after a tidy run surfaced friction, or when asked to improve/reflect on claudemd-tidy.
-version: 0.9.0
+version: 0.9.1
 ---
 
 # /tidyclaudemd:claudemd-tidy-reflect
@@ -64,7 +64,7 @@ These invariants (documented in `README.md` → Invariants) may **never be weake
 4. **Check the README bullet for every SKILL.md step touched this pass** — not just "if a documented feature changed" (easy to judge false when the change is subtle). If the edited step has a corresponding README bullet, update it in the same diff: paraphrase behavior and intent, never restate a step's normative test or wording verbatim. Never leave `README.md` describing superseded behavior.
 5. Mark consumed records in `RUNS.md`: `**Processed:** yes (vX.Y.Z)` — or `**Processed:** yes (vX.Y.Z, provisional)` if any lesson drawn from that record was applied provisionally in sub-step 3. When a provisional lesson is later promoted, update the *originating* record's marker in place to drop `, provisional`.
 6. **Archive fully-processed records.** A record is an archive candidate once it is `Processed: yes` **and not** `provisional` (a still-pending-corroboration provisional record is never archived). A user may also add `**Pinned:** yes` to any record to exempt it from archiving indefinitely, regardless of processed/provisional state. Keep the 3 most recent archive-eligible records in `RUNS.md`; move the rest, oldest first, into a dated file inside `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` (create the directory if missing) — never delete. `RUNS.md` stays bounded to recent/active records plus anything still provisional or pinned; archived records remain fully readable, just no longer in the always-loaded file.
-7. **Keep the plugin manifests in sync.** Update `.claude-plugin/plugin.json`'s `version` field to match the bump in sub-step 2, and `.claude-plugin/marketplace.json`'s `latest` field to the new release tag, in the same pass.
+7. **Keep the plugin manifest in sync.** Update `.claude-plugin/plugin.json`'s `version` field to match the bump in sub-step 2, in the same pass. (`.claude-plugin/marketplace.json` has no per-version field for a same-repo plugin — install always resolves to whatever `plugin.json` currently says — so there's nothing there to update.)
 
 ## Step 6 — Report
 
