@@ -1,6 +1,6 @@
 # claude-md-tidy suite
 
-**Version 1.2.1** · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
+**Version 0.3.1** · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
 
 This repo is the version-controlled source of truth. Claude Code loads skills from `~/.claude/skills/`, so each skill here is also installed as a copy at `~/.claude/skills/<name>/SKILL.md`. After editing a skill here, copy it back to the installed location (or vice versa) — there is no symlink or sync automation yet.
 

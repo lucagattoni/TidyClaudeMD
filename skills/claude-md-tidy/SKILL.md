@@ -1,7 +1,7 @@
 ---
 name: claude-md-tidy
 description: Scan every CLAUDE.md in the current repo against the global "CLAUDE.md hygiene" rules and slim it by relocating/compressing content — never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md.
-version: 1.2.1
+version: 0.3.1
 ---
 
 # /claude-md-tidy
