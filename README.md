@@ -1,6 +1,6 @@
 # TidyClaudeMD
 
-**Version 0.7.1** · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
+**Version 0.7.2** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
 
 This repo is the version-controlled source of truth. Claude Code loads skills from `~/.claude/skills/`, so each skill here is also installed as a copy at `~/.claude/skills/<name>/SKILL.md`. After editing a skill here, copy it back to the installed location (or vice versa) — there is no symlink or sync automation yet.
 
@@ -8,6 +8,22 @@ This repo is the version-controlled source of truth. Claude Code loads skills fr
 |---|---|
 | [`/claude-md-tidy`](skills/claude-md-tidy/SKILL.md) | Audit and slim the CLAUDE.md file(s) of the current repo |
 | [`/claude-md-tidy-reflect`](skills/claude-md-tidy-reflect/SKILL.md) | Learn from recorded runs and meta-improve the suite itself |
+
+## Install
+
+Manual copy is the only working method today:
+
+```bash
+git clone https://github.com/lucagattoni/TidyClaudeMD.git
+cp -r TidyClaudeMD/skills/claude-md-tidy ~/.claude/skills/
+cp -r TidyClaudeMD/skills/claude-md-tidy-reflect ~/.claude/skills/
+```
+
+Both skills are then available as `/claude-md-tidy` and `/claude-md-tidy-reflect` in any Claude Code session. Re-run the copy after pulling updates — there's no sync automation yet.
+
+**Planned, not yet built** (see [`plans/plugin-packaging-plan.md`](plans/plugin-packaging-plan.md)):
+- A one-line `install.sh` in place of the manual `git clone` + `cp` above.
+- Installation as a proper Claude Code plugin (`/plugin marketplace add lucagattoni/TidyClaudeMD` then `/plugin install tidyclaudemd@TidyClaudeMD`) — note this would change invocation to the namespaced `/tidyclaudemd:claude-md-tidy` form, not the bare `/claude-md-tidy` shown above.
 
 ## File layout
 

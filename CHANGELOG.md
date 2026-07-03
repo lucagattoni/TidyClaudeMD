@@ -4,6 +4,12 @@ All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). 
 
 ## [Unreleased]
 
+## [0.7.2] — 2026-07-03
+
+### Added
+- README `## Install` section documenting the current manual-copy install method, plus a `plans/plugin-packaging-plan.md` planning doc for two future distribution paths: a one-line `install.sh` and installation as a proper Claude Code plugin (user request, 2026-07-03).
+- A prominent CHANGELOG.md link next to the version number at the top of the README, not just in the Versioning section at the bottom (user request, 2026-07-03).
+
 ## [0.7.1] — 2026-07-03
 
 ### Fixed
