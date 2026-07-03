@@ -1,16 +1,19 @@
 # CLAUDE.md scope-placement tensions — research + plan
 
-Status: **proposed, not started.** Researched 2026-07-03 against official Claude Code documentation (`code.claude.com/docs/en/`: `memory.md`, `features-overview.md`, `best-practices.md`). Triggered by a real gap found in conversation: `claudemd-tidy` has no test for "this line belongs in a different file than the one it's in" — the tidy skill's five verdicts (KEEP/COMPRESS/RELOCATE/DELETE/CHALLENGE) only reason about content *within* the current repo. This doc surveys all three scope-placement axes at once, since they're the same class of problem, and proposes concrete skill changes for each.
+Status: **proposed, not started.** Researched 2026-07-03 against official Claude Code documentation (`code.claude.com/docs/en/`: `memory.md`, `features-overview.md`, `best-practices.md`). Triggered by a real gap found in conversation: `claudemd-tidy` has no test for "this line belongs in a different file than the one it's in" — the tidy skill's five verdicts (KEEP/COMPRESS/RELOCATE/DELETE/CHALLENGE) only reason about content *within* the current repo. This doc surveys four scope-placement axes at once, since they're the same class of problem, and proposes concrete skill changes for each.
 
-## The three axes
+_Updated 2026-07-03: added axis 4 (CLAUDE.md vs. AGENTS.md) per user request, researched the same way as the first three._
 
-Every line in a CLAUDE.md implicitly claims to belong exactly where it sits. Three independent questions can each falsify that claim:
+## The four axes
+
+Every line in a CLAUDE.md implicitly claims to belong exactly where it sits — and, per axis 4, an entire *other file* can implicitly claim rules that CLAUDE.md never sees. Four independent questions can each falsify that:
 
 1. **CLAUDE.md vs. Skill** — is this a fact needed every session, or a procedure/reference used only sometimes?
 2. **Project CLAUDE.md vs. user/global CLAUDE.md vs. `CLAUDE.local.md`** — is this project-specific, cross-project-personal, or repo-local-personal?
 3. **CLAUDE.md vs. Memory (`MEMORY.md`)** — is this a deliberate, human-authored rule, or an agent-discovered pattern?
+4. **CLAUDE.md vs. AGENTS.md** — does this repo have a cross-tool instruction file Claude Code doesn't read directly, and if so, is it bridged in correctly?
 
-`claudemd-tidy` today only reasons well about axis 1 (via RELOCATE). Axes 2 and 3 are unhandled — a line can be flagged True/Live/Consistent/Actionable/non-redundant and still be filed in the wrong *scope* entirely, and nothing currently catches that.
+`claudemd-tidy` today only reasons well about axis 1 (via RELOCATE). Axes 2, 3, and 4 are unhandled — a line can be flagged True/Live/Consistent/Actionable/non-redundant and still be filed in the wrong *scope* entirely (or, per axis 4, an entire sibling file's content can be silently invisible to every Claude Code session), and nothing currently catches that.
 
 ---
 
@@ -57,6 +60,22 @@ Neither CLAUDE.md nor Memory *enforces* anything — both are context that shape
 
 **Gap check against the current skill:** also entirely unhandled. A CLAUDE.md line that reads like a discovered debugging insight or an ad hoc noticed pattern (not a deliberate team rule) rather than an intentional instruction is invisible to all five current verdicts — True/Live/Consistent/Actionable/Redundant-by-order all pass a line like this if it happens to be accurate and unambiguous, even though it's arguably the wrong *kind* of content for a PR-reviewed rulebook. Proposed fix below (item 3) — deliberately scoped narrower than the full bidirectional promotion path, for reasons explained there.
 
+## Axis 4: CLAUDE.md vs. AGENTS.md — research
+
+Official guidance (`memory.md`, "AGENTS.md" section):
+
+- **Claude Code does not read `AGENTS.md` directly** — stated explicitly: *"Claude Code reads `CLAUDE.md`, not `AGENTS.md`."* No setting or flag changes this; it's a firm platform boundary, not a gap in configuration.
+- **Documented interop pattern**: a `CLAUDE.md` can start with an `@AGENTS.md` import line — Claude loads the imported file at session start, then reads any remaining `CLAUDE.md` content below it as Claude-specific additions. Alternative: `ln -s AGENTS.md CLAUDE.md` (a symlink; Unix-only, needs Admin/Developer Mode on Windows).
+- **`/init` behavior**: running `/init` in a repo that already has an `AGENTS.md` reads it and folds the relevant parts into the `CLAUDE.md` it generates (also reads `.cursorrules`, `.devin/rules/`, `.windsurfrules` — other tools' equivalents).
+
+**Decision rule** (official): a repo supporting multiple AI coding tools should keep shared instructions in `AGENTS.md` and import it into `CLAUDE.md` (`@AGENTS.md` at the top, Claude-specific content below), rather than maintaining two separately-duplicated files.
+
+**Gap check against the current skill:** two distinct gaps, both unhandled today, sharing one root cause — the skill doesn't know `AGENTS.md` exists at all:
+
+(a) **Repo-level structural gap.** Step 2's target-finding (bullet 1) looks for `*CLAUDE.md`/`CLAUDE.md` and `CLAUDE.local.md`-style files; it never checks for `AGENTS.md`. A repo with an `AGENTS.md` that no `CLAUDE.md` imports has a real, concrete consequence beyond this skill: Claude Code itself never reads that content in *any* session, tidy or otherwise. Two sub-cases: no `CLAUDE.md` exists at all (Claude Code has zero project-specific context, even though other tools using `AGENTS.md` do), or a `CLAUDE.md` exists but doesn't import `AGENTS.md` (the blindness problem, plus a duplication/drift risk if both files independently maintain overlapping rules).
+
+(b) **Import-following gap.** When a `CLAUDE.md` *does* correctly import `AGENTS.md` via `@AGENTS.md`, that imported content is exactly as "loaded every session" as anything written directly in `CLAUDE.md` — but Step 1's rule-loading and Step 2b's line-by-line interrogation only look at the literal `CLAUDE.md` file's own text today. An import line is opaque to the skill; the content it pulls in is never audited at all, even though it's fully active in every session.
+
 ---
 
 ## Proposed changes to `claudemd-tidy`
@@ -93,14 +112,26 @@ This keeps the check useful (flags miscategorized content) without expanding the
 **Files:** `skills/claudemd-tidy/SKILL.md` (Step 2b new question, Step 3 CHALLENGE option list).
 **Bump:** MINOR (new test, extends CHALLENGE — not a new verdict).
 
+### 4. Axis 4 — detect `AGENTS.md` and follow `@AGENTS.md` imports
+
+**Proposed fix (two parts, one item — both stem from the same root cause: the skill doesn't know `AGENTS.md` exists).**
+
+**Part a — target-finding.** Extend Step 2 bullet 1 to also check for `AGENTS.md` at the repo root (and nested, mirroring how `CLAUDE.md` is found). If found, check whether any `CLAUDE.md` in the repo imports it (`@AGENTS.md` line, or a symlink). Surface the result in the Step 4 plan as an explicit repo-level note, the same treatment already given to the `CLAUDE.local.md` finding: *"Found AGENTS.md at `<path>` — [not imported by any CLAUDE.md / imported by `<file>`]. Claude Code only reads CLAUDE.md directly; an unimported AGENTS.md is invisible to every Claude Code session, not just this tidy run."* Never auto-adds an import line (that's a decision the user should make deliberately) — always surfaces as information at minimum, and escalates to a CHALLENGE-style question when it looks like unintentional drift (both files exist, neither imports the other, and a grep shows overlapping rule text between them). Cheap enough to also run during `--report` mode, alongside the existing mechanical checks.
+
+**Part b — follow imports during interrogation.** When a target `CLAUDE.md`'s content is (or starts with) `@AGENTS.md` — or the file is a symlink to an `AGENTS.md` — treat the imported file's content as part of the "effective" CLAUDE.md for every subsequent step: Step 2b's line-by-line walk includes `AGENTS.md`'s lines, Step 3's verdicts can apply to blocks that physically live in `AGENTS.md`, and Step 5's apply phase edits `AGENTS.md` directly for any verdict landing on an imported block (never duplicating imported content back into `CLAUDE.md`). This makes the official import pattern fully transparent to the skill instead of a blind spot.
+
+**Files:** `skills/claudemd-tidy/SKILL.md` (Step 2 target-finding, Step 1/Step 2b import-following, Step 3/Step 5 — verdicts and edits can target `AGENTS.md` when imported).
+**Bump:** MINOR (new detection + import-following capability, extends existing steps — no new verdict, no workflow-contract change).
+
 ---
 
 ## What this plan does not decide
 
 - **Whether item 2's promote-to-global write needs to be an explicit seventh protected invariant**, or just documented apply-phase discipline (a note in Step 5, no invariant-gate escalation). The reflect skill's existing invariants list is specifically about *self-improvement* changing the *skill's own* behavior; this is the *tidy skill's normal operation* writing to a file outside the repo, a different category. Worth an explicit decision before implementing item 2, not assumed here.
-- **Naming**: "Correctly-scoped?" and "Rule-vs-memory?" are working names, not final — Step 2b's existing five questions (True/Live/Consistent/Actionable/Redundant-by-order) all read as single adjectives or a compact compound; these two are a bit longer. Fine to bikeshed at implementation time, not a blocker.
+- **Naming**: "Correctly-scoped?", "Rule-vs-memory?" are working names, not final — Step 2b's existing five questions (True/Live/Consistent/Actionable/Redundant-by-order) all read as single adjectives or a compact compound; these are a bit longer. Fine to bikeshed at implementation time, not a blocker.
 - Whether item 1 is worth doing at all, given it's flagged as already-substantially-covered — included for completeness since the research surfaced it, not because it's clearly worth a release on its own.
+- **Item 4's exact CHALLENGE-escalation threshold** ("looks like unintentional drift") isn't fully specified — "overlapping rule text" is doing a lot of work in that sentence and needs a concrete evidence rule (grep-based? semantic similarity? both files mentioning the same tool/command by name?) analogous to how DELETE's evidence rule was made concrete (cited duplicate location or grep-confirmed dead reference). Resolve at implementation time, don't hand-wave it into the shipped skill.
 
 ## Suggested execution order
 
-Item 2 (Axis 2) is the one the user explicitly asked for and the most concrete gap — do it first. Item 3 (Axis 3) is a natural companion, same shape of fix, no new invariant question attached to it (it never writes anywhere, CHALLENGE-only) — safe to do in the same pass as item 2 once the open question above is resolved. Item 1 is optional polish, doable anytime, independent of the other two.
+Item 2 (Axis 2) is the one the user explicitly asked for first and the most concrete gap — do it first. Item 3 (Axis 3) is a natural companion, same shape of fix, no new invariant question attached to it (it never writes anywhere, CHALLENGE-only) — safe to do in the same pass as item 2 once the open question above is resolved. Item 4 (Axis 4, added on request) is independent of items 2/3 — different files, different mechanism (target-finding + import-following, not a Step 2b line test) — and part (a) alone (detection + reporting, no import-following) is a smaller, self-contained slice worth shipping on its own if part (b) needs more design work. Item 1 is optional polish, doable anytime, independent of everything else.
