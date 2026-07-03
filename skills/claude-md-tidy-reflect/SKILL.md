@@ -1,7 +1,7 @@
 ---
 name: claude-md-tidy-reflect
 description: Self-improvement loop for TidyClaudeMD. Learns from recorded tidy runs and concrete CLAUDE.md instances, then applies evidence-backed improvements to the tidy skill itself — bumping the version and CHANGELOG. Use after a tidy run surfaced friction, or when asked to improve/reflect on claude-md-tidy.
-version: 0.7.2
+version: 0.7.3
 ---
 
 # /claude-md-tidy-reflect

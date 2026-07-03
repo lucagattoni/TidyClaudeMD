@@ -1,6 +1,6 @@
 # TidyClaudeMD
 
-**Version 0.7.2** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
+**Version 0.7.3** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
 
 This repo is the version-controlled source of truth. Claude Code loads skills from `~/.claude/skills/`, so each skill here is also installed as a copy at `~/.claude/skills/<name>/SKILL.md`. After editing a skill here, copy it back to the installed location (or vice versa) — there is no symlink or sync automation yet.
 
@@ -11,7 +11,16 @@ This repo is the version-controlled source of truth. Claude Code loads skills fr
 
 ## Install
 
-Manual copy is the only working method today:
+**Distribution is plugin-only, going forward** — see [`plans/plugin-packaging-plan.md`](plans/plugin-packaging-plan.md). Once shipped, the only supported install is:
+
+```
+/plugin marketplace add lucagattoni/TidyClaudeMD
+/plugin install tidyclaudemd@TidyClaudeMD
+```
+
+Both skills are then available under their namespaced form, `/tidyclaudemd:claudemd-tidy` and `/tidyclaudemd:claudemd-tidy-reflect` (both skills are also being renamed from `claude-md-tidy`/`claude-md-tidy-reflect` as part of this work — see the plan). There is no manual-install fallback and no standalone install script planned; the plugin is the one supported path.
+
+**Until the plugin ships**, manual copy is the only thing that works — a stopgap, not a documented long-term alternative:
 
 ```bash
 git clone https://github.com/lucagattoni/TidyClaudeMD.git
@@ -19,11 +28,7 @@ cp -r TidyClaudeMD/skills/claude-md-tidy ~/.claude/skills/
 cp -r TidyClaudeMD/skills/claude-md-tidy-reflect ~/.claude/skills/
 ```
 
-Both skills are then available as `/claude-md-tidy` and `/claude-md-tidy-reflect` in any Claude Code session. Re-run the copy after pulling updates — there's no sync automation yet.
-
-**Planned, not yet built** (see [`plans/plugin-packaging-plan.md`](plans/plugin-packaging-plan.md)):
-- A one-line `install.sh` in place of the manual `git clone` + `cp` above.
-- Installation as a proper Claude Code plugin (`/plugin marketplace add lucagattoni/TidyClaudeMD` then `/plugin install tidyclaudemd@TidyClaudeMD`) — note this would change invocation to the namespaced `/tidyclaudemd:claude-md-tidy` form, not the bare `/claude-md-tidy` shown above.
+Both skills are then available as `/claude-md-tidy` and `/claude-md-tidy-reflect` in any Claude Code session. Re-run the copy after pulling updates — there's no sync automation yet. Expect these names and this install method to be replaced, not supplemented, once the plugin ships.
 
 ## File layout
 
@@ -127,3 +132,7 @@ One semver for the whole suite, kept identical in both skills' frontmatter and i
 | MAJOR | Changed workflow contract — phases, stop points, file layout (always needs user approval) |
 | MINOR | New step, verdict, signal, or capability |
 | PATCH | Clarified wording, tightened an existing test, format fix |
+
+## License
+
+MIT — see [LICENSE](LICENSE).

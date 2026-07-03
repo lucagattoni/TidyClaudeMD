@@ -4,6 +4,16 @@ All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). 
 
 ## [Unreleased]
 
+## [0.7.3] — 2026-07-03
+
+### Added
+- `LICENSE` (MIT) at repo root (user decision, 2026-07-03).
+- README `## License` section pointing to it.
+
+### Changed
+- Plugin packaging plan (`plans/plugin-packaging-plan.md`) revised per three user decisions: both skills are renamed `claudemd-tidy` / `claudemd-tidy-reflect` as part of the plugin work (not yet executed against the live repo); distribution is plugin-only going forward — no manual-install fallback, no `install.sh`; license is MIT. Also confirmed the exact runtime path-resolution mechanism (`${CLAUDE_PLUGIN_ROOT}` / `${CLAUDE_PLUGIN_DATA}`) that an earlier draft had left as an open question (user decisions + follow-up doc research, 2026-07-03).
+- README's Install section reframed: manual copy is now explicitly a stopgap until the plugin ships, not a documented long-term alternative; the install.sh idea is dropped.
+
 ## [0.7.2] — 2026-07-03
 
 ### Added
