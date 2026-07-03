@@ -1,8 +1,28 @@
 # Changelog — TidyClaudeMD
 
-All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). Follows semantic versioning; one version for the whole suite. Entries produced by the self-improvement loop cite the run record that motivated them as `(run: YYYY-MM-DD <repo>)`.
+All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Follows semantic versioning; one version for the whole suite. Entries produced by the self-improvement loop cite the run record that motivated them as `(run: YYYY-MM-DD <repo>)`.
 
 ## [Unreleased]
+
+## [0.8.0] — 2026-07-03
+
+_Executes `plans/plugin-packaging-plan.md` phases 1-5 and 7 in one release (user request, 2026-07-03): the rename, the path-portability fix, the manifest files, the reflect skill's versioning-integration sub-step, a local `--plugin-dir` test, and this README rewrite. Phase 6 (external marketplace-flow verification from a genuinely separate machine/checkout) is explicitly not done — it isn't verifiable from within the session/machine that authored the plugin._
+
+### Verified (local test, `claude --plugin-dir`)
+- `/tidyclaudemd:claudemd-tidy` loads and triggers correctly under its namespaced form.
+- `--report` mode runs preflight (encryption/CI/visibility checks) and produces the designed two-tier output (mechanical checks + explicitly-labeled-unverified verdict impression) against a scratch repo.
+- `${CLAUDE_PLUGIN_DATA}` resolves to a real path outside the target project (`~/.claude/plugins/data/tidyclaudemd-inline/RUNS.md` for a `--plugin-dir`-loaded plugin), confirming the path-portability fix. The actual write was blocked by this test session's own sandbox restrictions on cross-directory writes in non-interactive mode (not a plugin defect) — the resolved *path* is confirmed, the write itself is not.
+
+### Changed
+- **Both skills renamed**, live: `claude-md-tidy` → `claudemd-tidy`, `claude-md-tidy-reflect` → `claudemd-tidy-reflect`. Directories, both `SKILL.md` frontmatter `name:` fields, every cross-reference between the two skills, the README, and this CHANGELOG's historical entries were all updated to match (user decision, 2026-07-03).
+- **All hardcoded `~/.claude/skills/claude-md-tidy/…` paths replaced** with Claude Code's plugin environment variables: `${CLAUDE_PLUGIN_DATA}` for `RUNS.md`/`RUNS-archive/` (persists across plugin updates), `${CLAUDE_PLUGIN_ROOT}` for the read-only cross-references to `SKILL.md`/`README.md`/`CHANGELOG.md` (the current version's bundled files). This was the one real blocker the plugin plan had flagged — a plugin published with the old hardcoded paths would have silently been unable to find its own run records (`plans/plugin-packaging-plan.md`).
+- Invocation is now namespaced throughout every doc: `/tidyclaudemd:claudemd-tidy` and `/tidyclaudemd:claudemd-tidy-reflect`, not the bare pre-plugin form.
+- `claudemd-tidy-reflect` Step 5 gained a seventh sub-step: keep `.claude-plugin/plugin.json`'s `version` and `.claude-plugin/marketplace.json`'s `latest` field in sync with every future version bump.
+
+### Added
+- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`: this repo is now both the Claude Code plugin (`tidyclaudemd`, bundling both skills) and its own marketplace listing.
+
+**Bump note:** renaming live directories and adding new root-level manifest files is arguably a MAJOR "file layout" change per this suite's own versioning table. Consistent with the same call made for `RUNS-archive/` in v0.4.0 (item 11), this is applied as MINOR instead — the project is still pre-1.0 and under active development; jumping to 1.0.0 for an unverified-end-to-end plugin release would misrepresent stability, not reflect it.
 
 ## [0.7.3] — 2026-07-03
 
@@ -23,21 +43,21 @@ All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). 
 ## [0.7.1] — 2026-07-03
 
 ### Fixed
-- Project branding left over from before the repo rename: README.md's title, its file-layout diagram's root directory name, CHANGELOG.md's title, and the reflect skill's frontmatter description all still said "claude-md-tidy suite" / `claudemd-tidy` instead of `TidyClaudeMD` (user feedback, 2026-07-03).
+- Project branding left over from before the repo rename: README.md's title, its file-layout diagram's root directory name, CHANGELOG.md's title, and the reflect skill's frontmatter description all still said "claude-md-tidy suite" / `claudemd-tidy` (an unrelated old placeholder-directory typo, distinct from the skill-name rename below) instead of `TidyClaudeMD` (user feedback, 2026-07-03).
 
 ## [0.7.0] — 2026-07-03
 
 ### Added
 - Fifth line-interrogation question **Redundant-by-order?**: does an earlier-loaded scope (per Claude Code's config load order) already establish a line's intent regardless of exact wording? Requires Step 1 to read the whole global CLAUDE.md, not just the hygiene section. Routes to COMPRESS or CHALLENGE, never DELETE — same-intent-different-wording redundancy isn't a verbatim duplicate or a grep-confirmed dead reference, so widening DELETE's evidence rule to cover it would weaken protected invariant 3 (competitive landscape review, 2026-07-03; `plans/v1.3.0-integrated-candidate-improvements.md` item 13).
 - Target-finding (Step 2) now also globs the filesystem directly for gitignored personal-override filenames (`CLAUDE.local.md`-style), which `git ls-files` and a standard untracked-file check both miss entirely (competitive landscape review, 2026-07-03; item 14).
-- Documented an optional, advisory `PostToolUse` hook pattern (README) that reminds a user to run `/claude-md-tidy` when a CLAUDE.md crosses the hygiene guardrail between runs — opt-in, not shipped as part of either skill (competitive landscape review, 2026-07-03; item 12).
-- `claude-md-tidy-reflect` Step 1 gained a fourth evidence source: an ad-hoc lesson raised directly in an ordinary conversation, not tied to any recorded run — the conversation stands in as the citation (critical self-review, 2026-07-03; item 6).
+- Documented an optional, advisory `PostToolUse` hook pattern (README) that reminds a user to run `/claudemd-tidy` when a CLAUDE.md crosses the hygiene guardrail between runs — opt-in, not shipped as part of either skill (competitive landscape review, 2026-07-03; item 12).
+- `claudemd-tidy-reflect` Step 1 gained a fourth evidence source: an ad-hoc lesson raised directly in an ordinary conversation, not tied to any recorded run — the conversation stands in as the citation (critical self-review, 2026-07-03; item 6).
 
 ### Changed
 - RELOCATE's pointer requirement changed from "a one-line pointer" to a **rich-abstract pointer** — a short synopsis of the concrete fact(s) a reader would otherwise open the sub-doc for, plus the link — since a bare cross-reference gets opened anyway on any non-trivial task (competitive landscape review, 2026-07-03; item 10).
 - CHALLENGE items in Step 4's plan are now grouped by stakes (destructive/safety-relevant first, then widely-depended-on rules, then minor CHALLENGEs batched last) instead of presented as a flat list (critical self-review, 2026-07-03; item 5).
 - Step 2b's Consistent? question now actively probes common contradiction shapes (autonomy vs. ask-first, default vs. undocumented exception, conflicting thresholds, "always X" vs. a not-X case) instead of relying only on whatever a line-by-line read happens to surface (competitive landscape review, 2026-07-03; item 5).
-- `claude-md-tidy-reflect` Step 5's README-sync rule tightened from "if any documented feature changed" to "check the README bullet for every step touched this pass" (critical self-review, 2026-07-03; item 4).
+- `claudemd-tidy-reflect` Step 5's README-sync rule tightened from "if any documented feature changed" to "check the README bullet for every step touched this pass" (critical self-review, 2026-07-03; item 4).
 
 ## [0.6.0] — 2026-07-03
 
@@ -56,12 +76,12 @@ All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). 
 ## [0.4.0] — 2026-07-03
 
 ### Added
-- Pruning signal: an instruction in `claude-md-tidy/SKILL.md` that never triggered across processed run records (never cited as the reason a CHALLENGE/DELETE/RELOCATE fired) is now a removal candidate, evidenced the same way an addition is; requires a Step 7 run-record format extension ("Instructions exercised") to be evaluable (competitive landscape review, 2026-07-03; `plans/v1.3.0-integrated-candidate-improvements.md` item 1).
+- Pruning signal: an instruction in `claudemd-tidy/SKILL.md` that never triggered across processed run records (never cited as the reason a CHALLENGE/DELETE/RELOCATE fired) is now a removal candidate, evidenced the same way an addition is; requires a Step 7 run-record format extension ("Instructions exercised") to be evaluable (competitive landscape review, 2026-07-03; `plans/v1.3.0-integrated-candidate-improvements.md` item 1).
 - Provisional lessons: a lesson drawn from a single run record is now marked `provisional` in both the CHANGELOG and the source `RUNS.md` record; a later run's contradicting evidence demotes/revisits it, a second independent corroboration promotes it (critical self-review, 2026-07-03; item 3).
 - `RUNS.md` archiving: fully-processed, non-provisional, unpinned records beyond the 3 most recent are moved (never deleted) into a new `RUNS-archive/` directory, keeping the always-loaded `RUNS.md` bounded. A `Pinned: yes` record marker exempts a record from archiving indefinitely (competitive landscape review, 2026-07-03; item 11 — applied as MINOR per explicit user decision, since it is purely additive; the suite's own file-layout-is-MAJOR reading was noted but not applied this round).
 
 ### Changed
-- Run-record format (`claude-md-tidy` Step 7) gained an "Instructions exercised" field tracing which step/test produced each non-KEEP verdict and each CHALLENGE (prerequisite for the pruning signal above).
+- Run-record format (`claudemd-tidy` Step 7) gained an "Instructions exercised" field tracing which step/test produced each non-KEEP verdict and each CHALLENGE (prerequisite for the pruning signal above).
 
 ## [0.3.1] — 2026-07-03
 
@@ -81,13 +101,13 @@ _Version counting restarted at 0.1 on 2026-07-03: the suite is not yet considere
 ## [0.2.0] — 2026-07-03
 
 ### Added
-- `claude-md-tidy-reflect` skill: evidence-only self-improvement loop that learns from run records and concrete CLAUDE.md instances, routes lessons to their correct home, and applies minimal diffs behind an invariant gate.
-- Run recording (Step 7) in `claude-md-tidy`: every run appends a structured record to `RUNS.md` (result, user amendments, questions, friction, uncovered cases) — the training data for reflection.
+- `claudemd-tidy-reflect` skill: evidence-only self-improvement loop that learns from run records and concrete CLAUDE.md instances, routes lessons to their correct home, and applies minimal diffs behind an invariant gate.
+- Run recording (Step 7) in `claudemd-tidy`: every run appends a structured record to `RUNS.md` (result, user amendments, questions, friction, uncovered cases) — the training data for reflection.
 - `README.md` documenting every feature, the file layout, the six protected invariants, and the versioning policy.
 - This `CHANGELOG.md` and suite versioning (`version:` in both skills' frontmatter).
 
 ## [0.1.0] — 2026-07-03
 
 ### Added
-- Initial `claude-md-tidy` skill: preflight (git sync + repo-visibility PRIMARY CHECK), repo-wide CLAUDE.md scan, four-verdict analysis (KEEP / COMPRESS / RELOCATE / DELETE) with evidence requirements, stop-and-confirm plan, disciplined apply (repo branching conventions, two-way cross-links, docs-in-sync grep, no-loss check), and final report.
+- Initial `claudemd-tidy` skill: preflight (git sync + repo-visibility PRIMARY CHECK), repo-wide CLAUDE.md scan, four-verdict analysis (KEEP / COMPRESS / RELOCATE / DELETE) with evidence requirements, stop-and-confirm plan, disciplined apply (repo branching conventions, two-way cross-links, docs-in-sync grep, no-loss check), and final report.
 - Rules single-sourced from the "CLAUDE.md hygiene" section of `~/.claude/CLAUDE.md`.

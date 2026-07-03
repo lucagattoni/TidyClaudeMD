@@ -1,65 +1,53 @@
 # TidyClaudeMD
 
-**Version 0.7.3** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
+**Version 0.8.0** ([changelog](CHANGELOG.md)) · Two personal Claude Code skills that keep every repo's `CLAUDE.md` slim without losing information — and that improve themselves from the experience of real runs.
 
-This repo is the version-controlled source of truth. Claude Code loads skills from `~/.claude/skills/`, so each skill here is also installed as a copy at `~/.claude/skills/<name>/SKILL.md`. After editing a skill here, copy it back to the installed location (or vice versa) — there is no symlink or sync automation yet.
+Distributed as a single Claude Code plugin, `tidyclaudemd`, bundling both skills. This repo is the plugin **and** its own marketplace — no separate repo to publish to.
 
 | Skill | Purpose |
 |---|---|
-| [`/claude-md-tidy`](skills/claude-md-tidy/SKILL.md) | Audit and slim the CLAUDE.md file(s) of the current repo |
-| [`/claude-md-tidy-reflect`](skills/claude-md-tidy-reflect/SKILL.md) | Learn from recorded runs and meta-improve the suite itself |
+| [`/tidyclaudemd:claudemd-tidy`](skills/claudemd-tidy/SKILL.md) | Audit and slim the CLAUDE.md file(s) of the current repo |
+| [`/tidyclaudemd:claudemd-tidy-reflect`](skills/claudemd-tidy-reflect/SKILL.md) | Learn from recorded runs and meta-improve the suite itself |
 
 ## Install
-
-**Distribution is plugin-only, going forward** — see [`plans/plugin-packaging-plan.md`](plans/plugin-packaging-plan.md). Once shipped, the only supported install is:
 
 ```
 /plugin marketplace add lucagattoni/TidyClaudeMD
 /plugin install tidyclaudemd@TidyClaudeMD
 ```
 
-Both skills are then available under their namespaced form, `/tidyclaudemd:claudemd-tidy` and `/tidyclaudemd:claudemd-tidy-reflect` (both skills are also being renamed from `claude-md-tidy`/`claude-md-tidy-reflect` as part of this work — see the plan). There is no manual-install fallback and no standalone install script planned; the plugin is the one supported path.
+Both skills are then available under their namespaced form shown in the table above. This is the only supported install path — no manual copy, no standalone script (see [`plans/plugin-packaging-plan.md`](plans/plugin-packaging-plan.md) for the full design, including the two Claude Code environment variables, `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_DATA}`, that make this work without hardcoding install paths).
 
-**Until the plugin ships**, manual copy is the only thing that works — a stopgap, not a documented long-term alternative:
-
-```bash
-git clone https://github.com/lucagattoni/TidyClaudeMD.git
-cp -r TidyClaudeMD/skills/claude-md-tidy ~/.claude/skills/
-cp -r TidyClaudeMD/skills/claude-md-tidy-reflect ~/.claude/skills/
-```
-
-Both skills are then available as `/claude-md-tidy` and `/claude-md-tidy-reflect` in any Claude Code session. Re-run the copy after pulling updates — there's no sync automation yet. Expect these names and this install method to be replaced, not supplemented, once the plugin ships.
+Verified locally via `claude --plugin-dir` (skill loading, `--report` mode, and path resolution all confirmed working). **Not yet verified end-to-end via the real marketplace flow** (`/plugin marketplace add` + `/plugin install` from a genuinely separate checkout) — see the plan's phased action items for what's still open.
 
 ## File layout
 
-This repo:
+This repo (also the plugin, and its own marketplace):
 
 ```
 TidyClaudeMD/
   README.md                          ← this file
   CHANGELOG.md                       ← version history of the suite (semver)
+  LICENSE                            ← MIT
+  .claude-plugin/
+    plugin.json                      ← plugin manifest (name, version, license, ...)
+    marketplace.json                 ← marketplace catalog (this repo lists itself)
   skills/
-    claude-md-tidy/SKILL.md          ← the tidy skill
-    claude-md-tidy-reflect/SKILL.md  ← the self-improvement skill
+    claudemd-tidy/SKILL.md           ← the tidy skill
+    claudemd-tidy-reflect/SKILL.md   ← the self-improvement skill
 ```
 
-Installed (`~/.claude/`), same content plus one file this repo never carries:
+Installed, this same content lives under `${CLAUDE_PLUGIN_ROOT}` (the plugin's installation directory — substituted inline wherever a skill's own instructions reference it, no hardcoded path). Persistent bookkeeping lives separately, under `${CLAUDE_PLUGIN_DATA}`, specifically so it survives a plugin update instead of being replaced along with the bundled files:
 
 ```
-~/.claude/
-  CLAUDE.md                          ← "CLAUDE.md hygiene" section: the rules (single source of truth)
-  skills/
-    claude-md-tidy/
-      SKILL.md, README.md, CHANGELOG.md
-      RUNS.md                        ← run records (created on first run; newest at top) — NOT committed here,
-                                         it accumulates real per-repo feedback that can include private context
-      RUNS-archive/                  ← fully-processed, non-provisional, unpinned records moved out of RUNS.md
-                                         once it has more than 3 archive-eligible records — never deleted
-    claude-md-tidy-reflect/
-      SKILL.md
+${CLAUDE_PLUGIN_DATA}/
+  RUNS.md            ← run records (created on first run; newest at top) — accumulates real
+                         per-repo feedback that can include private context
+  RUNS-archive/      ← fully-processed, non-provisional, unpinned records moved out of RUNS.md
+                         once it has more than 3 archive-eligible records — never deleted
 ```
 
-## /claude-md-tidy — features
+## /tidyclaudemd:claudemd-tidy — features
 
 - **Rule sourcing.** The skill carries no rules of its own: it reads the numbered rules from the "CLAUDE.md hygiene" section of `~/.claude/CLAUDE.md` at runtime. Editing that section changes the skill's behavior; if the section is missing, the skill stops.
 - **Scope.** Optional argument targets one CLAUDE.md; by default it sweeps every CLAUDE.md in the repo, root and nested — including gitignored personal-override files (e.g. `CLAUDE.local.md`-style conventions), which a plain `git ls-files`/untracked-file check would otherwise miss entirely.
@@ -78,7 +66,7 @@ Installed (`~/.claude/`), same content plus one file this repo never carries:
 - **No-loss check.** After applying, every removed line must be found at its new home or on the verified-DELETE list; the final CLAUDE.md is re-read end-to-end for coherence.
 - **Run recording with generalizability tags.** Every run — even analyze-only — appends a structured record to `RUNS.md`: result, which instructions were exercised (which step/test produced each non-KEEP verdict and each CHALLENGE), user feedback, questions asked, friction, uncovered cases. Each piece of user feedback (amendments, CHALLENGE resolutions, remarks) is tagged **at recording time, while context is fresh**: `[general → suggested home]` if the lesson would hold in other repos, `[repo-specific]` if not, `[general?]` when unsure. These records are the training data for the reflection loop.
 
-## /claude-md-tidy-reflect — features
+## /tidyclaudemd:claudemd-tidy-reflect — features
 
 - **Evidence-only improvement.** Changes to the suite must trace to a concrete run record, the current session's live tidy experience, a dry-run analysis of a specific CLAUDE.md passed as an argument, or an ad-hoc lesson raised directly in an ordinary conversation (the conversation itself stands in as the citation). No evidence → no change, by design.
 - **Signal extraction**, strongest first: user feedback pre-tagged `[general]`/`[general?]` in run records (verified, then treated as top-priority lessons; `[repo-specific]` items never enter the suite); user-overridden verdicts → the classification tests mis-sorted something real; questions the skill had to ask → instruction gaps; apply-phase friction → steps to harden; content outside the taxonomy → extend the verdicts; an instruction that never fired across processed records → a pruning candidate.
@@ -101,7 +89,7 @@ Self-improvement may not remove or weaken these; any lesson touching them requir
 
 ## Optional companion hook
 
-`/claude-md-tidy` is judgment-driven and only runs when invoked, so nothing notices a CLAUDE.md crossing the global hygiene guardrail (~150 lines) *between* runs. This is deliberate — a deterministic hard cap would conflict with the five-test, judgment-driven verdicts above — but a purely **advisory** reminder closes the "drift happened" → "someone noticed" gap without blocking anything. Example `PostToolUse` hook (adapt the line-count check to your shell):
+`/tidyclaudemd:claudemd-tidy` is judgment-driven and only runs when invoked, so nothing notices a CLAUDE.md crossing the global hygiene guardrail (~150 lines) *between* runs. This is deliberate — a deterministic hard cap would conflict with the five-test, judgment-driven verdicts above — but a purely **advisory** reminder closes the "drift happened" → "someone noticed" gap without blocking anything. Example `PostToolUse` hook (adapt the line-count check to your shell):
 
 ```json
 {
@@ -112,7 +100,7 @@ Self-improvement may not remove or weaken these; any lesson touching them requir
         "hooks": [
           {
             "type": "command",
-            "command": "f=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; case \"$f\" in *CLAUDE.md) n=$(wc -l < \"$f\"); if [ \"$n\" -gt 150 ]; then echo \"$f is now $n lines (> the ~150-line hygiene guardrail) — consider running /claude-md-tidy\" >&2; fi ;; esac"
+            "command": "f=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; case \"$f\" in *CLAUDE.md) n=$(wc -l < \"$f\"); if [ \"$n\" -gt 150 ]; then echo \"$f is now $n lines (> the ~150-line hygiene guardrail) — consider running /tidyclaudemd:claudemd-tidy\" >&2; fi ;; esac"
           }
         ]
       }
@@ -125,7 +113,7 @@ This is guidance, not a shipped part of either skill — install it only if you 
 
 ## Versioning
 
-One semver for the whole suite, kept identical in both skills' frontmatter and in this README's header, with history in [CHANGELOG.md](CHANGELOG.md):
+One semver for the whole suite, kept identical in both skills' frontmatter, this README's header, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`'s `latest` field, with history in [CHANGELOG.md](CHANGELOG.md):
 
 | Bump | When |
 |---|---|

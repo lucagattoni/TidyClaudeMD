@@ -1,0 +1,11 @@
+{
+  "name": "tidyclaudemd",
+  "description": "Self-improving Claude Code skills that keep every repo's CLAUDE.md slim without losing information",
+  "version": "0.8.0",
+  "author": {
+    "name": "Luca Gattoni"
+  },
+  "homepage": "https://github.com/lucagattoni/TidyClaudeMD",
+  "repository": "https://github.com/lucagattoni/TidyClaudeMD",
+  "license": "MIT"
+}

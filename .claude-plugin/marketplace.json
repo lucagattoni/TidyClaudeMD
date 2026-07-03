@@ -1,0 +1,19 @@
+{
+  "version": "1",
+  "plugins": [
+    {
+      "name": "tidyclaudemd",
+      "description": "Self-improving Claude Code skills that keep every repo's CLAUDE.md slim without losing information",
+      "author": {
+        "name": "Luca Gattoni"
+      },
+      "homepage": "https://github.com/lucagattoni/TidyClaudeMD",
+      "source": {
+        "type": "git",
+        "url": "lucagattoni/TidyClaudeMD",
+        "path": "."
+      },
+      "latest": "v0.8.0"
+    }
+  ]
+}

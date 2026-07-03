@@ -1,10 +1,10 @@
 ---
-name: claude-md-tidy
+name: claudemd-tidy
 description: Scan every CLAUDE.md in the current repo against the global "CLAUDE.md hygiene" rules and slim it by relocating/compressing content — never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md.
-version: 0.7.3
+version: 0.8.0
 ---
 
-# /claude-md-tidy
+# /tidyclaudemd:claudemd-tidy
 
 Audit and slim the CLAUDE.md file(s) of the current repo. Two phases: **analyze & propose** (always), then **apply** (only after the user confirms).
 
@@ -101,13 +101,13 @@ Final summary: per file, before → after line counts, blocks relocated (with de
 
 ## Step 7 — Record the run (always, even for analyze-only or report-only runs)
 
-Append a run record at the **top** of `~/.claude/skills/claude-md-tidy/RUNS.md` (create the file with a `# claude-md-tidy — run records` header if missing):
+Append a run record at the **top** of `${CLAUDE_PLUGIN_DATA}/RUNS.md` (create the file with a `# claudemd-tidy — run records` header if missing):
 
 ```markdown
 ## YYYY-MM-DD — <repo> (<files processed>)
 - **Processed:** no
 - **Result:** <before> → <after> lines · <n> relocated · <n> compressed · <n> deleted · <n> challenged (or "analyze-only, not applied")
-- **Instructions exercised:** <for each non-KEEP verdict and each CHALLENGE, the SKILL.md step or test that produced it (e.g. "RELOCATE: Step 3 verdict table", "CHALLENGE: Step 2b Consistent?") — or "none (analyze-only found nothing to act on)". This is what lets `/claude-md-tidy-reflect` later tell which instructions are pulling weight across runs and which never fire.>
+- **Instructions exercised:** <for each non-KEEP verdict and each CHALLENGE, the SKILL.md step or test that produced it (e.g. "RELOCATE: Step 3 verdict table", "CHALLENGE: Step 2b Consistent?") — or "none (analyze-only found nothing to act on)". This is what lets `/tidyclaudemd:claudemd-tidy-reflect` later tell which instructions are pulling weight across runs and which never fire.>
 - **User feedback:** <every amendment, CHALLENGE resolution, and remark the user made, verbatim-ish, each tagged:
   `[general → suggested home: tidy skill / reflect skill / global hygiene rules]` if the lesson would
   hold in other repos, or `[repo-specific]` if it only reflects this repo's context — or "none">
@@ -118,4 +118,4 @@ Append a run record at the **top** of `~/.claude/skills/claude-md-tidy/RUNS.md` 
 
 Assess generalizability **at recording time, while the context is fresh** — the reflect skill verifies the tag but relies on this first-hand judgment. When in doubt, tag `[general?]` and let reflection decide.
 
-Be honest and specific — these records are the training data for `/claude-md-tidy-reflect`. If any field is non-empty besides Result, suggest the user run `/claude-md-tidy-reflect` to fold the lesson back into this skill.
+Be honest and specific — these records are the training data for `/tidyclaudemd:claudemd-tidy-reflect`. If any field is non-empty besides Result, suggest the user run `/tidyclaudemd:claudemd-tidy-reflect` to fold the lesson back into this skill.
