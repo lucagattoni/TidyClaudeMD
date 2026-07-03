@@ -1,7 +1,7 @@
 ---
 name: claude-md-tidy
 description: Scan every CLAUDE.md in the current repo against the global "CLAUDE.md hygiene" rules and slim it by relocating/compressing content — never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md.
-version: 0.5.0
+version: 0.6.0
 ---
 
 # /claude-md-tidy
@@ -26,6 +26,8 @@ A report-only run still appends a Step 7 run record (tag it analyze-only in the 
 1. Confirm you are inside a git repo; if not, ask which file to tidy and skip git steps.
 2. Sync per the global working defaults: `git fetch`, check branch/ahead-behind/dirty state.
 3. Check repo visibility (`gh repo view --json visibility` or inspect the remote). If public or unknown → the **PRIMARY CHECK** in `~/.claude/CLAUDE.md` applies to every file this skill writes, including relocated content.
+4. **Encryption check.** Scan for git-crypt/SOPS filters in `.gitattributes` or an `.age` key reference. If found, flag it: in Step 3, any encryption-unlock instructions in the CLAUDE.md are force-classified **KEEP** (never RELOCATE — moving them risks a chicken-and-egg lock-out); any other RELOCATE destination must be verified as covered by the same encryption scope as the source before Step 5 executes it.
+5. **CI-dependency check.** Scan CI config (`.github/workflows/` and any other CI directories at the repo root) for scripts that reference `CLAUDE.md` by filename (e.g. a script that greps its content for a required phrase). If found, flag the content those scripts appear to depend on: it's ineligible for RELOCATE in Step 5 without the user's explicit confirmation in Step 4 that the CI dependency is accounted for.
 
 ## Step 1 — Load the rules
 
@@ -62,7 +64,7 @@ Walk each CLAUDE.md section by section and classify every block with exactly one
 | **COMPRESS** | Rule stays here, rewritten tighter | Same meaning expressible in fewer lines (prose → bullets/table, redundant examples dropped) |
 | **RELOCATE** | Detail moves to its proper home; a one-line pointer stays | Procedure/step detail whose natural owner is a skill, `docs/`, or README |
 | **DELETE** | Removed outright | Duplicated verbatim elsewhere (cite location), **or** dead and grep-*confirmed* gone (cite the failed lookup — a rename counts as confirmed if the new location is found and cited instead) |
-| **CHALLENGE** | Suspect — raised to the user as a question, never resolved unilaterally | Failed a Step 2b question but **not** grep-confirmable either way: ambiguous liveness, possible-but-unconfirmed rename, contradiction between rules, or wording too vague to act on |
+| **CHALLENGE** | Suspect — raised to the user as a question, never resolved unilaterally | Failed a Step 2b question but **not** grep-confirmable either way: ambiguous liveness, possible-but-unconfirmed rename, contradiction between rules, or wording too vague to act on — **or** an otherwise-RELOCATE-eligible block blocked by an unresolved Step 0 encryption/CI-dependency flag (see Rules of evidence below) |
 
 DELETE and CHALLENGE are mutually exclusive by evidence strength, not by which Step 2b question failed: a **confirmed** dead reference is DELETE; anything the grep can't settle is CHALLENGE. If a search is inconclusive, default to CHALLENGE — never guess a DELETE.
 
@@ -70,6 +72,7 @@ Rules of evidence:
 - Before any **DELETE**, verify: grep the repo for the referenced file/command/term. Cite the evidence (the duplicate's location, or the failed lookup proving it's gone) in the plan.
 - Before any **RELOCATE**, identify the exact destination file and whether it already covers the content (then it's a DELETE-as-duplicate with a pointer check, not a move).
 - Content whose only sin is verbosity is COMPRESS, never DELETE.
+- A block flagged by Step 0's encryption or CI-dependency check cannot be RELOCATEd until that flag's condition is satisfied (matching encryption scope confirmed, or the user explicitly confirms the CI dependency is handled in Step 4) — until then it routes to CHALLENGE, not RELOCATE.
 
 ## Step 4 — Report and confirm (stop point)
 
@@ -84,7 +87,7 @@ Present a plan per file:
 ## Step 5 — Apply (only after confirmation)
 
 1. **Branching:** follow the repo's own conventions if its CLAUDE.md defines any (branch/worktree rules); otherwise, multi-file changes go on a branch, a single-file compress-only edit may go direct.
-2. Execute RELOCATEs first (create/extend destination files, add cross-links both ways), then COMPRESS, then DELETE, then update the CLAUDE.md pointers.
+2. Execute RELOCATEs first (create/extend destination files, add cross-links both ways) — skip any still blocked by an unresolved Step 0 encryption or CI-dependency flag — then COMPRESS, then DELETE, then update the CLAUDE.md pointers.
 3. **Keep docs in sync:** grep for every moved/renamed term and update all referencing docs in the same change.
 4. **No-loss check:** for each removed line, confirm it is either present at its new home or listed in the plan as a verified DELETE. Re-read the final CLAUDE.md top to bottom for coherence.
 5. Commit with a message summarizing before/after line counts; merge/publish per the repo's conventions. Update the repo's CHANGELOG if it keeps one.

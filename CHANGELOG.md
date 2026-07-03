@@ -4,6 +4,12 @@ All notable changes to the suite (`claude-md-tidy` + `claude-md-tidy-reflect`). 
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-07-03
+
+### Added
+- Encryption check (Step 0 Preflight): detects git-crypt/SOPS filters or an `.age` key reference; any encryption-unlock instructions are force-classified KEEP, and any other RELOCATE destination must be confirmed within the same encryption scope before Step 5 executes it — otherwise the block routes to CHALLENGE (competitive landscape review, 2026-07-03; `plans/v1.3.0-integrated-candidate-improvements.md` item 8).
+- CI-dependency check (Step 0 Preflight): detects CI scripts that reference `CLAUDE.md` by filename; flagged content is ineligible for RELOCATE without the user's explicit confirmation in Step 4, otherwise it routes to CHALLENGE (competitive landscape review, 2026-07-03; item 9).
+
 ## [0.5.0] — 2026-07-03
 
 ### Added
