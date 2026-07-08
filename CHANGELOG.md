@@ -4,6 +4,11 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.20.1] — 2026-07-09
+
+### Changed
+- README's opening rewritten: the version/changelog line no longer leads (it read as transactional rather than an introduction) — a two-paragraph overview now opens the file, explaining what accumulates in Claude Code's instruction files and why that's worth tidying, before the version line appears as a short trailer (user directive 2026-07-09).
+
 ## [0.20.0] — 2026-07-09
 
 ### Changed

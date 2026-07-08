@@ -1,8 +1,10 @@
 # TidyClaudeMD
 
-**Version 0.20.0** ([changelog](CHANGELOG.md)) · A Claude Code plugin that keeps your instruction files — `CLAUDE.md`, `.claude/rules/`, `SKILL.md`, and Claude's own memory — slim and accurate, without ever losing information.
+Claude Code reads several kinds of instruction files before it does anything else: your project's `CLAUDE.md`, custom `.claude/rules/`, `SKILL.md` procedures, and its own memory notes. As a project matures, these files accumulate — rules get duplicated across files, drift out of date, or grow past the length Claude actually reads reliably.
 
-It doesn't touch your code. It tidies the *instructions you give Claude* — the files that accumulate cruft, drift out of date, or grow too long for Claude to read reliably the longer a project runs.
+TidyClaudeMD is a Claude Code plugin that audits and slims these instruction files — never your actual code. It works the way you'd refactor, not just delete: content moves to its correct home, verbose rules get compressed, only confirmed-dead content is removed, and anything only you can judge is raised as a question instead of guessed at. A second skill learns from real tidy runs and improves the first — evidence-only, never a guess.
+
+**Version 0.20.1** · [Changelog](CHANGELOG.md)
 
 ## New to Claude Code?
 
