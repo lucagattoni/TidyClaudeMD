@@ -4,6 +4,11 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.14.0] — 2026-07-08
+
+### Added
+- **Target-class registry** with the first new class, **user-level** (`--user`): `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md` become first-class tidy targets, running the same phases with inverted Correctly-scoped? direction ("genuinely universal, or belongs to one project?") and managed-policy as their earlier-loaded scope. `--all` runs every class. For user-level runs, "the repo" is `~/.claude` itself — Step 0.6's versioning check decides its tier (mission plan Phase 2; user decision 2026-07-08).
+
 ## [0.13.0] — 2026-07-08
 
 ### Added

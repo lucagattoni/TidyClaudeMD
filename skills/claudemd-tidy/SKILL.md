@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy
 description: Scan every CLAUDE.md in the current repo against the global "CLAUDE.md hygiene" rules and slim it by relocating/compressing content — never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md.
-version: 0.13.0
+version: 0.14.0
 ---
 
 # /tidyclaudemd:claudemd-tidy
@@ -10,7 +10,16 @@ Audit and slim the CLAUDE.md file(s) of the current repo. Two phases: **analyze 
 
 ## Argument
 
-Optional path to a specific CLAUDE.md, and/or `--report` to run report mode (below) instead of a full tidy. If no path is given, process every CLAUDE.md in the current repo (root + nested).
+Optional: a path to a specific target file, a target-class flag (below), and/or `--report` to run report mode instead of a full tidy. With no flag and no path, process every CLAUDE.md in the current repo (root + nested). `--all` runs every class in scope on this machine.
+
+## Target classes
+
+Every class runs the same phases — preflight → rules → survey → interrogate → verdicts → confirm → apply → record — with the class-specific behavior below. For user-level classes, "the repo" in Step 0 is `~/.claude` itself: the versioning check (Step 0.6) decides whether it has git history; there is no CI/encryption surface; PRIMARY CHECK applies if the `~/.claude` repo ever has a remote.
+
+| Class | Flag | Locations | Size guidance | Class-specific behavior |
+|---|---|---|---|---|
+| Project CLAUDE.md | (default) | `./CLAUDE.md`, `./.claude/CLAUDE.md`, nested, `CLAUDE.local.md` | ~150-line guardrail | The seven Step 2b questions as written |
+| User-level | `--user` | `~/.claude/CLAUDE.md`, `~/.claude/rules/*.md` | same guardrail per file | **Correctly-scoped? inverts**: "is this genuinely universal — or does it belong in one project's CLAUDE.md, or as a path-scoped rule?" Earlier-loaded scopes for Redundant-by-order: managed policy (for the global CLAUDE.md); managed policy + the global CLAUDE.md (for user rules). Everything here is personal by definition — CHALLENGE still fires for intent questions, but there is no "team" dimension |
 
 ## Report mode (`--report`)
 
