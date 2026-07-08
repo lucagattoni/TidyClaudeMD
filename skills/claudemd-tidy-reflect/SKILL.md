@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy-reflect
 description: Self-improvement loop for TidyClaudeMD. Learns from recorded tidy runs and concrete CLAUDE.md instances, then applies evidence-backed improvements to the tidy skill itself — bumping the version and CHANGELOG. Use after a tidy run surfaced friction, or when asked to improve/reflect on claudemd-tidy.
-version: 0.19.2
+version: 0.20.0
 ---
 
 # /tidyclaudemd:claudemd-tidy-reflect
@@ -10,19 +10,19 @@ Learn from concrete tidy experience and fold the lessons back into `${CLAUDE_PLU
 
 ## Argument
 
-Optional: a path to a specific CLAUDE.md to study as a fresh instance (analysis only, no edits to it), or a run date from `RUNS.md` to (re)process. Default: all records marked `**Processed:** no` in `${CLAUDE_PLUGIN_DATA}/RUNS.md`, plus the current session's tidy run if one just happened.
+Optional: a path to a specific CLAUDE.md to study as a fresh instance (analysis only, no edits to it), or a date, target name, or filename identifying one or more logs in `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` to (re)process. Default: every log in `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` marked `**Processed:** no`, plus the current session's tidy run if one just happened.
 
 ## Step 0 — Load the suite
 
-Read all of: `${CLAUDE_PLUGIN_ROOT}/skills/claudemd-tidy/SKILL.md`, this skill's own `SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/README.md`, `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md`, `${CLAUDE_PLUGIN_DATA}/RUNS.md`, and the "CLAUDE.md hygiene" section of `~/.claude/CLAUDE.md`. Note the current suite version.
+Read all of: `${CLAUDE_PLUGIN_ROOT}/skills/claudemd-tidy/SKILL.md`, this skill's own `SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/README.md`, `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md`, every log in `${CLAUDE_PLUGIN_DATA}/RUNS-archive/`, and the "CLAUDE.md hygiene" section of `~/.claude/CLAUDE.md`. Note the current suite version.
 
 ## Step 1 — Gather evidence
 
-- Unprocessed run records from `RUNS.md`.
+- Unprocessed run logs: every file in `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` not marked `**Processed:** yes`.
 - If invoked right after a tidy run in this session: the live experience (user amendments, questions, friction) — even before it's recorded.
 - If given a CLAUDE.md path: dry-run the tidy skill's analyze phase against it and note every point where the current instructions are ambiguous, silent, or force a question.
-- **An ad-hoc lesson described directly in the invoking conversation** — not tied to any recorded run or dry-run, e.g. feedback about CLAUDE.md quality or suite design raised in an ordinary conversation. The conversation itself (and, where one exists, a doc such as a plan/backlog file) stands in as the citation in place of a `RUNS.md` record.
-- Whether new evidence **corroborates or contradicts** an existing `provisional` lesson (records marked `Processed: yes (vX.Y.Z, provisional)` — see Step 5). A contradiction is itself top-priority evidence to revisit or demote that lesson, cited the same way a fresh lesson would be; a second, independent corroboration promotes it.
+- **An ad-hoc lesson described directly in the invoking conversation** — not tied to any recorded run or dry-run, e.g. feedback about CLAUDE.md quality or suite design raised in an ordinary conversation. The conversation itself (and, where one exists, a doc such as a plan/backlog file) stands in as the citation in place of a run log.
+- Whether new evidence **corroborates or contradicts** an existing `provisional` lesson (logs marked `Processed: yes (vX.Y.Z, provisional)` — see Step 5). A contradiction is itself top-priority evidence to revisit or demote that lesson, cited the same way a fresh lesson would be; a second, independent corroboration promotes it.
 
 **If there is no evidence, report that and stop.** Never invent improvements from first principles.
 
@@ -30,16 +30,16 @@ Read all of: `${CLAUDE_PLUGIN_ROOT}/skills/claudemd-tidy/SKILL.md`, this skill's
 
 Mine the evidence for signals, strongest first:
 
-1. **User feedback tagged `[general …]` or `[general?]` in the run record** → the tidy run already judged it generalizable while the context was fresh; verify the tag (don't trust it blindly), then treat it as the highest-priority lesson. `[repo-specific]` items are only suggested to that repo, never folded into the suite.
+1. **User feedback tagged `[general …]` or `[general?]` in the run log** → the tidy run already judged it generalizable while the context was fresh; verify the tag (don't trust it blindly), then treat it as the highest-priority lesson. `[repo-specific]` items are only suggested to that repo, never folded into the suite.
 2. **User overrode a verdict** → the classification rules mis-sorted a real block; what distinguishing feature did they see that the rules miss?
 3. **The skill had to ask a question** the instructions should have answered → a gap to close.
 4. **Apply-phase friction or error** (blocked command, missing destination, sync conflict) → a preflight or apply step to harden.
 5. **Content that fit no verdict or no destination** → the taxonomy needs extending.
-6. **An existing instruction in `claudemd-tidy/SKILL.md` never triggered across the processed run records** — never cited as the reason a CHALLENGE/DELETE/RELOCATE fired, never referenced in feedback — is a **pruning candidate**. Requires the same evidence discipline as an addition: cite which records were checked and found the instruction inert before proposing its removal in Step 5. For a class-specific instruction (skills/memory/user-level tests), only runs whose **Target classes** field covers that class count as evidence either way — a memory test can't be judged inert from CLAUDE.md-only runs.
+6. **An existing instruction in `claudemd-tidy/SKILL.md` never triggered across the processed run logs** — never cited as the reason a CHALLENGE/DELETE/RELOCATE fired, never referenced in feedback — is a **pruning candidate**. Requires the same evidence discipline as an addition: cite which logs were checked and found the instruction inert before proposing its removal in Step 5. For a class-specific instruction (skills/memory/user-level tests), only runs whose **Target classes** field covers that class count as evidence either way — a memory test can't be judged inert from CLAUDE.md-only runs.
 
 Each candidate lesson must pass all three tests, or be discarded (and reported as discarded, with the reason):
 - **Generalizable** — would improve tidy runs in *other* repos, not just this one.
-- **Traceable** — cites the specific run record or instance that motivated it.
+- **Traceable** — cites the specific run log or instance that motivated it.
 - **Correctly homed** — see Step 3.
 
 ## Step 3 — Route each lesson to its home
@@ -55,16 +55,15 @@ These invariants (documented in `README.md` → Invariants) may **never be weake
 
 ## Step 5 — Apply
 
-1. Edit the routed file(s) with **minimal diffs** — surgical insertions/rewrites, each mapped to one lesson. A **pruning** lesson (Step 2, signal 6) removes the inert instruction from `claudemd-tidy/SKILL.md` the same way an addition inserts one — cite the checked records in the CHANGELOG entry (sub-step 3).
+1. Edit the routed file(s) with **minimal diffs** — surgical insertions/rewrites, each mapped to one lesson. A **pruning** lesson (Step 2, signal 6) removes the inert instruction from `claudemd-tidy/SKILL.md` the same way an addition inserts one — cite the checked logs in the CHANGELOG entry (sub-step 3).
 2. **Bump the suite version** (one semver for the whole suite, kept identical in both skills' frontmatter):
    - **PATCH** — clarified wording, tightened an existing test, fixed a record format.
    - **MINOR** — new step, new verdict, new signal, new capability.
    - **MAJOR** — changed workflow contract (phases, stop points, file layout). Always requires user approval, independent of the invariant gate.
-3. Add a `CHANGELOG.md` entry under the new version: each change on one line, ending with its evidence citation `(run: YYYY-MM-DD <repo>)`. A lesson drawn from a **single** run record is marked **provisional**: `(provisional, 1 occurrence — run: YYYY-MM-DD <repo>)`. When a second, independent run corroborates a provisional lesson, promote it: rewrite the original line to drop the `provisional` tag and cite both runs, rather than adding a second line for the same lesson.
+3. Add a `CHANGELOG.md` entry under the new version: each change on one line, ending with its evidence citation `(run: <log filename>)`, e.g. `(run: 20260708-2327-job2026.log)`. A lesson drawn from a **single** run log is marked **provisional**: `(provisional, 1 occurrence — run: <log filename>)`. When a second, independent run corroborates a provisional lesson, promote it: rewrite the original line to drop the `provisional` tag and cite both logs, rather than adding a second line for the same lesson.
 4. **Check the README bullet for every SKILL.md step touched this pass** — not just "if a documented feature changed" (easy to judge false when the change is subtle). If the edited step has a corresponding README bullet, update it in the same diff: paraphrase behavior and intent, never restate a step's normative test or wording verbatim. Never leave `README.md` describing superseded behavior.
-5. Mark consumed records in `RUNS.md`: `**Processed:** yes (vX.Y.Z)` — or `**Processed:** yes (vX.Y.Z, provisional)` if any lesson drawn from that record was applied provisionally in sub-step 3. When a provisional lesson is later promoted, update the *originating* record's marker in place to drop `, provisional`.
-6. **Archive fully-processed records.** A record is an archive candidate once it is `Processed: yes` **and not** `provisional` (a still-pending-corroboration provisional record is never archived). A user may also add `**Pinned:** yes` to any record to exempt it from archiving indefinitely, regardless of processed/provisional state. Keep the 3 most recent archive-eligible records in `RUNS.md`; move the rest, oldest first, into a dated file inside `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` (create the directory if missing) — never delete. `RUNS.md` stays bounded to recent/active records plus anything still provisional or pinned; archived records remain fully readable, just no longer in the always-loaded file.
-7. **Keep the plugin manifest in sync.** Update `.claude-plugin/plugin.json`'s `version` field to match the bump in sub-step 2, in the same pass. (`.claude-plugin/marketplace.json` has no per-version field for a same-repo plugin — install always resolves to whatever `plugin.json` currently says — so there's nothing there to update.)
+5. **Mark each consumed log in place**, editing its own file in `RUNS-archive/`: `**Processed:** yes (vX.Y.Z)` — or `**Processed:** yes (vX.Y.Z, provisional)` if any lesson drawn from it was applied provisionally in sub-step 3. When a provisional lesson is later promoted, update the *originating* log's marker in place to drop `, provisional`. Logs are never deleted, moved, or batched — each stays permanently at its own path.
+6. **Keep the plugin manifest in sync.** Update `.claude-plugin/plugin.json`'s `version` field to match the bump in sub-step 2, in the same pass. (`.claude-plugin/marketplace.json` has no per-version field for a same-repo plugin — install always resolves to whatever `plugin.json` currently says — so there's nothing there to update.)
 
 ## Step 6 — Report
 

@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy
 description: Audit and slim Claude Code instruction files against the global "CLAUDE.md hygiene" rules — project and user-level CLAUDE.md, .claude/rules, SKILL.md files (--skills), and auto memory (--memory) — by relocating/compressing content, never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md, their skills, rules, or memory.
-version: 0.19.2
+version: 0.20.0
 ---
 
 # /tidyclaudemd:claudemd-tidy
@@ -30,7 +30,7 @@ A cheap, no-plan, no-confirmation, no-edits pre-check for "how bad is this CLAUD
 - **Mechanical checks** (scriptable, no judgment): line/token count per file vs. the global hygiene guardrail (~150 lines); non-English/CJK content flagged with an estimated token-overhead cost (non-English content runs roughly 30-50% more tokens per instruction than equivalent English); a session-cost estimate (per-request token cost × an assumed 30-turn session); an **AGENTS.md visibility check** (present in the repo? imported by any CLAUDE.md, or invisible to every Claude Code session?).
 - **A rough verdict-mix impression** from a shallow read only — an approximate KEEP/COMPRESS/RELOCATE/DELETE/CHALLENGE tally. Label this explicitly as unverified judgment in the output, never with the same confidence as the mechanical counts above — verdict classification without Step 2b's real interrogation is a guess, not an analysis.
 
-A report-only run still appends a Step 7 run record (tag it analyze-only in the Result field) and explicitly states in its output that it is a heuristic pre-check, not a substitute for a full tidy.
+A report-only run still writes a Step 7 run log (tag it analyze-only in the Result field) and explicitly states in its output that it is a heuristic pre-check, not a substitute for a full tidy.
 
 ## Step 0 — Preflight
 
@@ -149,14 +149,17 @@ Final summary: per file, before → after line counts, blocks relocated (with de
 
 ## Step 7 — Record the run (always, even for analyze-only or report-only runs)
 
-Append a run record at the **top** of `${CLAUDE_PLUGIN_DATA}/RUNS.md` (create the file with a `# claudemd-tidy — run records` header if missing):
+Write **one new file per run** to `${CLAUDE_PLUGIN_DATA}/RUNS-archive/` (create the directory if missing) — never append to a shared file; every run gets its own permanent, standalone log. Name it `<YYYYMMDD>-<HHMM>-<target>.log` in local date/time, where `<target>` is `user` for a run scoped to `~/.claude`, or the target repo's directory basename otherwise (sanitize to `[A-Za-z0-9_-]`, e.g. `job2026`, `Claude-Warp`). On a same-minute, same-target collision, append `-2`, `-3`, ....
 
 ```markdown
-## YYYY-MM-DD — <repo> (<files processed>)
+# claudemd-tidy — run log
+
+- **Date/time:** YYYY-MM-DD HH:MM
+- **Target:** <repo name, or "user"> — `<absolute path to the repo root, or ~/.claude>`
 - **Processed:** no
 - **Target classes:** <which classes this run covered: project / user-level / skills / memory — lets reflection compare instruction performance per class>
 - **Memory snapshot:** <path, if a memory edit happened — or "n/a">
-
+- **Commit(s):** <the SHA(s) this run produced — one per apply iteration per the reversibility gate, oldest first — or "n/a — no changes applied" / "n/a — run aborted before any edit">
 - **Result:** <before> → <after> lines · <n> relocated · <n> compressed · <n> deleted · <n> challenged (or "analyze-only, not applied")
 - **Instructions exercised:** <for each non-KEEP verdict and each CHALLENGE, the SKILL.md step or test that produced it (e.g. "RELOCATE: Step 3 verdict table", "CHALLENGE: Step 2b Consistent?") — or "none (analyze-only found nothing to act on)". This is what lets `/tidyclaudemd:claudemd-tidy-reflect` later tell which instructions are pulling weight across runs and which never fire.>
 - **User feedback:** <every amendment, CHALLENGE resolution, and remark the user made, verbatim-ish, each tagged:
@@ -169,4 +172,4 @@ Append a run record at the **top** of `${CLAUDE_PLUGIN_DATA}/RUNS.md` (create th
 
 Assess generalizability **at recording time, while the context is fresh** — the reflect skill verifies the tag but relies on this first-hand judgment. When in doubt, tag `[general?]` and let reflection decide.
 
-Be honest and specific — these records are the training data for `/tidyclaudemd:claudemd-tidy-reflect`. If any field is non-empty besides Result, suggest the user run `/tidyclaudemd:claudemd-tidy-reflect` to fold the lesson back into this skill.
+Be honest and specific — these logs are the training data for `/tidyclaudemd:claudemd-tidy-reflect`, which gathers evidence by scanning every `RUNS-archive/*.log` file for `**Processed:** no`. If any field is non-empty besides Result, suggest the user run `/tidyclaudemd:claudemd-tidy-reflect` to fold the lesson back into this skill.

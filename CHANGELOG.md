@@ -4,6 +4,13 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.20.0] — 2026-07-09
+
+### Changed
+- **Run recording replaced with one permanent log file per run.** `RUNS.md` (a shared, always-loaded, newest-at-top file) and the batch-archive mechanism it fed (`RUNS-archive/<date>.md`, capped at 3 recent + provisional/pinned) are both gone. Every run — tidy or reflect-processed, applied or aborted — now writes its own standalone file directly to `RUNS-archive/`, named `<YYYYMMDD>-<HHMM>-<target>.log` (target = repo directory name, or `user` for a `~/.claude`-scoped run). Each log also records the target's absolute path and the commit(s) the run produced, neither of which the old format captured. Reflect's evidence gathering now scans `RUNS-archive/*.log` for `Processed: no` instead of reading one shared file; the archiving-cap sub-step (Step 5.6) is removed entirely since every log is already permanent from creation — nothing to promote or batch (user directive 2026-07-09).
+- **Migrated all 6 historical records** into the new format: 4 from the former `RUNS.md`, 1 from the batch `RUNS-archive/2026-07-03.md`, plus 1 already-processed `Claude-Loops` record found in `RUNS.md` at migration time. Where the run produced a commit (both `job2026` logs, `Claude-Loops`), the exact date/time and SHA were recovered from that repo's own git history rather than left approximate. The 3 `~/.claude`-scoped logs with no commit use approximate times, explicitly labeled, since the legacy format only recorded the date.
+- **README rewritten for a Claude Code beginner**, kept short and DRY: explains what CLAUDE.md/`.claude/rules/`/Skills/auto memory are (linking to Anthropic's own docs rather than re-explaining them) before describing what this suite does. The prior README's dense feature-by-feature detail moved to two new files under `docs/`: [`docs/claude-code-concepts.md`](docs/claude-code-concepts.md) (the beginner primer) and [`docs/reference.md`](docs/reference.md) (full manual — tables and short sections instead of dense run-on bullets, rewritten for readability after direct feedback that the first draft was too dense) (user directive 2026-07-09).
+
 ## [0.19.2] — 2026-07-09
 
 ### Changed
