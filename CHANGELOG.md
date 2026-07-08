@@ -4,6 +4,11 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.15.0] — 2026-07-08
+
+### Added
+- **Skills target class** (`--skills`): project `.claude/skills/*/SKILL.md` (and user-level with `--user`) join the tidy targets — except this suite's own two skills, which remain exclusive to the evidence-gated reflect loop. Three class-specific tests: Description-quality? (the always-loaded part must say what *and* when), Progressive-disclosure? (reference bulk → lazily-read supporting files, this class's RELOCATE destination), Frontmatter-sane? (valid YAML, name/directory match, referenced files exist). Official "under 500 lines" guidance as the size bar (mission plan Phase 2; user directive 2026-07-08).
+
 ## [0.14.0] — 2026-07-08
 
 ### Added

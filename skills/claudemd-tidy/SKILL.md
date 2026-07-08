@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy
 description: Scan every CLAUDE.md in the current repo against the global "CLAUDE.md hygiene" rules and slim it by relocating/compressing content — never losing information. Use when the user asks to tidy, slim, audit, or clean up a CLAUDE.md.
-version: 0.14.0
+version: 0.15.0
 ---
 
 # /tidyclaudemd:claudemd-tidy
@@ -20,6 +20,7 @@ Every class runs the same phases — preflight → rules → survey → interrog
 |---|---|---|---|---|
 | Project CLAUDE.md | (default) | `./CLAUDE.md`, `./.claude/CLAUDE.md`, nested, `CLAUDE.local.md` | ~150-line guardrail | The seven Step 2b questions as written |
 | User-level | `--user` | `~/.claude/CLAUDE.md`, `~/.claude/rules/*.md` | same guardrail per file | **Correctly-scoped? inverts**: "is this genuinely universal — or does it belong in one project's CLAUDE.md, or as a path-scoped rule?" Earlier-loaded scopes for Redundant-by-order: managed policy (for the global CLAUDE.md); managed policy + the global CLAUDE.md (for user rules). Everything here is personal by definition — CHALLENGE still fires for intent questions, but there is no "team" dimension |
+| Skills | `--skills` | `.claude/skills/*/SKILL.md`; with `--user` also `~/.claude/skills/*/SKILL.md`. **Never this suite's own two skills** — their changes belong exclusively to the evidence-gated reflect loop | official "under 500 lines" per SKILL.md | Three additional tests: **Description-quality?** — the description is the skill's always-loaded part; does it state what the skill does *and* when to trigger it, concretely enough to fire at the right moments? **Progressive-disclosure?** — reference/example bulk not needed on every invocation belongs in a supporting file linked from SKILL.md (read lazily), not inline; that is this class's RELOCATE destination. **Frontmatter-sane?** — valid YAML, `name:` matches the directory, files the skill references actually exist (grep-confirmable → normal DELETE/fix evidence rules) |
 
 ## Report mode (`--report`)
 
