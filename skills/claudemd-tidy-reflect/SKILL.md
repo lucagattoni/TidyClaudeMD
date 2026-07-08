@@ -1,7 +1,7 @@
 ---
 name: claudemd-tidy-reflect
 description: Self-improvement loop for TidyClaudeMD. Learns from recorded tidy runs and concrete CLAUDE.md instances, then applies evidence-backed improvements to the tidy skill itself — bumping the version and CHANGELOG. Use after a tidy run surfaced friction, or when asked to improve/reflect on claudemd-tidy.
-version: 0.20.1
+version: 0.20.2
 ---
 
 # /tidyclaudemd:claudemd-tidy-reflect
@@ -64,6 +64,7 @@ These invariants (documented in `README.md` → Invariants) may **never be weake
 4. **Check the README bullet for every SKILL.md step touched this pass** — not just "if a documented feature changed" (easy to judge false when the change is subtle). If the edited step has a corresponding README bullet, update it in the same diff: paraphrase behavior and intent, never restate a step's normative test or wording verbatim. Never leave `README.md` describing superseded behavior.
 5. **Mark each consumed log in place**, editing its own file in `RUNS-archive/`: `**Processed:** yes (vX.Y.Z)` — or `**Processed:** yes (vX.Y.Z, provisional)` if any lesson drawn from it was applied provisionally in sub-step 3. When a provisional lesson is later promoted, update the *originating* log's marker in place to drop `, provisional`. Logs are never deleted, moved, or batched — each stays permanently at its own path.
 6. **Keep the plugin manifest in sync.** Update `.claude-plugin/plugin.json`'s `version` field to match the bump in sub-step 2, in the same pass. (`.claude-plugin/marketplace.json` has no per-version field for a same-repo plugin — install always resolves to whatever `plugin.json` currently says — so there's nothing there to update.)
+7. **Publish the GitHub release, every time — never batch or skip.** After the commit lands: `git tag -a vX.Y.Z -m "<one-line summary>" && git push origin vX.Y.Z`, then `gh release create vX.Y.Z --title "vX.Y.Z — <one-line summary>" --notes-file <the CHANGELOG section just added>`. This applies to *every* version bump this suite makes, not only ones the reflect loop produces — a bump made directly in an ordinary session (executing a plan, answering a user request) still gets its tag and release in the same pass, immediately, not batched up for later. 15 releases went unpublished in a row before this rule existed (v0.10.0–v0.20.1, caught and backfilled 2026-07-09) — the CHANGELOG alone is not a substitute for the release; GitHub's release list is what a repo visitor actually sees.
 
 ## Step 6 — Report
 

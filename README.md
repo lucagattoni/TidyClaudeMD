@@ -4,7 +4,7 @@ Claude Code reads several kinds of instruction files before it does anything els
 
 TidyClaudeMD is a Claude Code plugin that audits and slims these instruction files — never your actual code. It works the way you'd refactor, not just delete: content moves to its correct home, verbose rules get compressed, only confirmed-dead content is removed, and anything only you can judge is raised as a question instead of guessed at. A second skill learns from real tidy runs and improves the first — evidence-only, never a guess.
 
-**Version 0.20.1** · [Changelog](CHANGELOG.md)
+**Version 0.20.2** · [Changelog](CHANGELOG.md)
 
 ## New to Claude Code?
 
@@ -80,6 +80,8 @@ One semver for the whole suite, kept identical in both skills' frontmatter, this
 | MAJOR | Changed workflow contract — phases, stop points, file layout (always needs user approval) |
 | MINOR | New step, verdict, signal, or capability |
 | PATCH | Clarified wording, tightened an existing test, format fix |
+
+**Every bump gets a matching git tag and [GitHub release](https://github.com/lucagattoni/TidyClaudeMD/releases), published in the same pass — no exceptions, whether the bump came from the reflect loop or an ordinary session.** The CHANGELOG entry alone isn't a substitute; the release list is what a repo visitor actually sees.
 
 ## License
 

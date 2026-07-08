@@ -4,6 +4,14 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.20.2] — 2026-07-09
+
+### Fixed
+- **15 releases (v0.10.0–v0.20.1) had shipped in CHANGELOG.md and never been published as GitHub releases** — every version bump since v0.9.1 was committed and tagged only in intent, not in git or on GitHub. Backfilled all 15 tags at their exact original commits and published matching GitHub releases from each CHANGELOG section, in order (user report, 2026-07-09).
+
+### Added
+- **Publishing a release is now a required, documented step of every version bump** — reflect skill Step 5 gains a new sub-step (tag + push + `gh release create`, every time, never batched) and the README's Versioning section states the same rule for bumps made outside the reflect loop. The CHANGELOG entry was never a substitute for the actual release; nothing enforced that distinction before now (user directive 2026-07-09).
+
 ## [0.20.1] — 2026-07-09
 
 ### Changed
