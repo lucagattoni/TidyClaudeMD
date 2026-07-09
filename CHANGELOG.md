@@ -4,6 +4,11 @@ All notable changes to the suite (`claudemd-tidy` + `claudemd-tidy-reflect`). Fo
 
 ## [Unreleased]
 
+## [0.21.0] — 2026-07-09
+
+### Added
+- **Cross-skill overlap/conflict detection** (`--skills` class, Target classes table, Skills row): a sweep-level pass, run once across every skill found rather than per-file, adds four checks — **Duplicate?** (byte-identical content), **Near-duplicate?** (same body, different frontmatter), **Name-conflict?** (colliding `name:` in the two shapes Claude Code doesn't already disambiguate: dirname mismatch, or the same name shadowed across project/user scope), and **Trigger-overlap?** (mechanically pre-filtered candidate pairs, then judged directly for whether two descriptions would plausibly fire on the same request). All four route to CHALLENGE — never an automatic deletion of a whole skill. The three mechanical checks also join `--report`'s mechanical-checks tier when composed with `--skills`. Implements `plans/cross-skill-overlap-plan.md`, itself built from ideas independently found in two competing projects (`TheStack-ai/pulser`'s trigger-keyword-overlap rule and `nick2781/claudoctor`'s content-hash/body-hash/name-conflict/Jaccard-overlap tiers — see `plans/competitive-landscape-2026-07-03.md`), reviewed through 4 adversarial passes before implementation (user directive 2026-07-09).
+
 ## [0.20.2] — 2026-07-09
 
 ### Fixed
